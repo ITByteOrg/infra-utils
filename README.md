@@ -11,34 +11,9 @@ This repository contains a growing collection of PowerShell scripts to support i
 |--------|---------|
 | `Scan-TFVariables.ps1` | Scans Terraform environments for pass-through variables and module input mismatches to reduce false positives and improve configuration hygiene. |
 
-```markdown
 1. Clone the repository:
 
-   ```bash
-   git clone https://github.com/ITByteEnthusiast/infra-utils.git
-   ```
-
-2. Run a script:
-
-   ```powershell
-   .\Scan-TFVariables.ps1
-   ```
-
-3. View the output:
-
-   Output will display in the terminal and be written to:
-
-   ```
-   $HOME\Downloads\VariableScanResults.txt
-   ```
-
-## Use Cases
-
-- Reduce unnecessary tflint warnings for pass-through variables
-
-- Detect module input mismatches that could signal drift or typos
-
-- Consolidate infrastructure tooling in one central location for maintenance and scalability
+1. For usage details, see the .DESCRIPTION section in file
 
 ## License
 This project is licensed under the Apache License 2.0. You may use, modify, and distribute the scripts with attribution.
