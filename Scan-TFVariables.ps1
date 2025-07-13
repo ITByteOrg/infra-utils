@@ -1,4 +1,40 @@
-# Scan-TFVariables.ps1
+<#
+.SYNOPSIS
+Analyzes Terraform environment folders to detect declared but unused variables ("pass-throughs")
+and module inputs passed but not declared in target modules.
+
+.DESCRIPTION
+This utility scans `.tf` files within environment directories to:
+
+- Identify variables declared but never used
+- Detect module input arguments that lack corresponding variable declarations
+- Report findings per environment with optional debug output
+
+Use cases include:
+- Auditing Terraform environments for unused or misaligned configuration
+- Validating module interface consistency during development
+- Automating static analysis as part of CI/CD pipelines
+- Supporting onboarding by highlighting declared inputs vs actual usage
+
+Supports configurable root paths for environment and module folders. Designed to assist
+in maintaining hygiene, consistency, and alignment across modular Terraform configurations.
+
+.EXAMPLE
+pwsh ./Scan-TFVariables.ps1
+
+Scans the default ./envs and ./modules folders, reporting unused variables and undeclared module inputs per environment.
+
+.EXAMPLE
+pwsh ./Scan-TFVariables.ps1 -EnvsRoot "/mnt/c/GitRepos/devops-infra/terraform/envs" -ModulesRoot "/mnt/c/GitRepos/devops-infra/terraform/modules"
+
+Scans Terraform environments and modules from custom paths. Useful when folders are outside the repo root.
+
+.EXAMPLE
+pwsh ./Scan-TFVariables.ps1 -EnvsRoot "./sandbox/envs" -ModulesRoot "./sandbox/modules" -Debug
+
+Provides verbose debug output including resolved variable definitions and usage counts. Helpful during local testing or onboarding.
+#>
+#!/usr/bin/env pwsh
 param(
     [string]$EnvsRoot = ".\envs",
     [string]$ModulesRoot = ".\modules",
@@ -10,6 +46,16 @@ $envDirs = Get-ChildItem -Path $EnvsRoot -Directory
 # $results = @{}
 $passThrough = @{}
 $moduleMismatch = @{}
+
+if (-not (Test-Path $ModulesRoot)) {
+    Write-Warning "Modules root '$ModulesRoot' does not exist. Please verify the path."
+    return
+}
+
+if (-not (Test-Path $EnvsRoot)) {
+    Write-Warning "Environments root '$EnvsRoot' does not exist. Please verify the path."
+    return
+}
 
 foreach ($env in $envDirs) {
     $envName = $env.Name
